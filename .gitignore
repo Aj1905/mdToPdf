@@ -5,3 +5,7 @@ output/
 *.tmp.html
 .resume-pandoc.html
 __pycache__/
+
+# 個人情報（README以外のmdファイル）
+user/**/*.md
+company/**/*.md

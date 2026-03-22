@@ -48,9 +48,21 @@ make edit USER=AJ COMPANY=Google ROLE=SWE TYPE=resume
 ## ファイル構成
 
 ```
-user/        - ユーザー情報（経歴・スキル）
-company/     - 企業情報（求人・企業文化）
-job_role/    - 職種情報（求められるスキル）
+user/        - ユーザー情報（個人ごとにフォルダを作成）
+  Jun Akita/
+    Jun Akita.md   - 基本情報・自己紹介・人生遍歴
+    education.md   - 学歴・学業成果
+    work.md        - 職歴・インターン・アルバイト
+    projects.md    - 個人/チームプロジェクト
+    skills.md      - 技術スキル・資格・語学
+    activities.md  - 課外活動・ボランティア・リーダー経験
+company/     - 企業情報（企業ごとにフォルダを作成）
+  Google/
+    Google.md    - 会社概要（企業文化・採用方針など）
+    Intern.md    - インターン職の役割・要件
+    SWE.md       - ソフトウェアエンジニア職の役割・要件
+    ...          - 役職ごとにファイルを追加
+job_role/    - 職種の一般情報（求められるスキル）
 templates/   - 文書テンプレート（履歴書・スキルシート・ES）
 output/      - 生成された Markdown / PDF
 ```
