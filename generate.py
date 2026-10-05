@@ -4,12 +4,12 @@ mdToPdf - テンプレートベースの文書生成ツール
 履歴書・スキルシート・エントリーシートをAIで自動整形し、PDF化する。
 
 使い方:
-  python generate.py <user> <company> <job_role> --type resume
-  python generate.py AJ Google SWE --type skillsheet
-  python generate.py AJ Google SWE --type entry
+  python generate.py <user> <company> --type resume
+  python generate.py "Jun Akita" Google --type skillsheet
+  python generate.py "Jun Akita" Google --type entry
 
 フロー:
-  1. user/company/job_role の情報を読み込み
+  1. user/company の情報を読み込み
   2. テンプレートに沿って Claude API が文章を整形・生成
   3. Markdown を保存 → ブラウザでプレビュー表示（編集可能）
   4. ブラウザ上の「PDF生成」ボタンを押して PDF 出力
@@ -56,7 +56,7 @@ def read_file(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def build_prompt(user_info: str, company_info: str, job_role_info: str,
+def build_prompt(user_info: str, company_info: str,
                  template: str, doc_type_name: str) -> str:
     return f"""あなたは日本語の就職活動文書を作成する専門家です。
 
@@ -64,7 +64,7 @@ def build_prompt(user_info: str, company_info: str, job_role_info: str,
 
 ## 指示
 - テンプレートの各セクション（{{...}}のプレースホルダー）を適切な内容で埋めてください
-- ユーザーの経歴・スキルを、応募先企業と職種に最適化して整形してください
+- ユーザーの経歴・スキルを、応募先企業に最適化して整形してください
 - 文章は簡潔かつプロフェッショナルに、日本語の就活文書として自然な表現にしてください
 - 事実に基づいて書き、情報を捏造しないでください
 - Markdown形式で出力してください（コードブロックで囲まないでください）
@@ -75,9 +75,6 @@ def build_prompt(user_info: str, company_info: str, job_role_info: str,
 
 ## 応募先企業情報
 {company_info}
-
-## 職種情報
-{job_role_info}
 
 ## テンプレート
 {template}
@@ -370,9 +367,16 @@ def main():
     parser = argparse.ArgumentParser(
         description="mdToPdf - AI文書生成ツール（履歴書・スキルシート・エントリーシート）",
     )
-    parser.add_argument("user", help="ユーザー名（user/ 内のファイル名、拡張子不要）")
-    parser.add_argument("company", help="企業名（company/ 内のファイル名、拡張子不要）")
-    parser.add_argument("job_role", help="職種名（job_role/ 内のファイル名、拡張子不要）")
+    parser.add_argument("user", nargs="?", help="ユーザー名（user/ 内のフォルダ名）")
+    parser.add_argument("company", nargs="?", help="企業名（company/ 内のファイル名、拡張子不要）")
+    parser.add_argument(
+        "--file", "-f", metavar="MD_FILE",
+        help="既存のMarkdownファイルを直接プレビュー・編集（user/company/job_role 不要）",
+    )
+    parser.add_argument(
+        "--pdf", metavar="PDF_FILE",
+        help="--file 使用時の出力PDFパス（省略時はMDと同名の.pdf）",
+    )
     parser.add_argument(
         "--type", "-t", dest="doc_type", default="resume",
         choices=DOC_TYPES.keys(),
@@ -388,13 +392,34 @@ def main():
     )
     args = parser.parse_args()
 
+    # --file モード: 任意のMDファイルを直接編集
+    if args.file:
+        md_output = Path(args.file).resolve()
+        if not md_output.exists():
+            print(f"Error: ファイルが見つかりません: {md_output}")
+            sys.exit(1)
+        if args.pdf:
+            pdf_output = Path(args.pdf).resolve()
+        else:
+            pdf_output = md_output.with_suffix(".pdf")
+        generated_md = md_output.read_text(encoding="utf-8")
+        start_preview_server(generated_md, md_output, pdf_output, args.port)
+        return
+
+    # 通常モード: user / company が必須
+    if not args.user or not args.company:
+        parser.error("user, company は必須です（または --file でMDを直接指定）")
+
     doc_info = DOC_TYPES[args.doc_type]
-    OUTPUT_DIR.mkdir(exist_ok=True)
+
+    # 出力先: output/{user}/
+    user_output_dir = OUTPUT_DIR / args.user
+    user_output_dir.mkdir(parents=True, exist_ok=True)
 
     # 出力ファイルパス
-    output_name = f"{args.user}_{args.company}_{args.job_role}_{args.doc_type}"
-    md_output = OUTPUT_DIR / f"{output_name}.md"
-    pdf_output = OUTPUT_DIR / f"{output_name}.pdf"
+    output_name = f"{args.user}_{args.company}_{args.doc_type}"
+    md_output = user_output_dir / f"{output_name}.md"
+    pdf_output = user_output_dir / f"{output_name}.pdf"
 
     if args.no_ai:
         # 既存 Markdown からプレビュー
@@ -404,14 +429,12 @@ def main():
         generated_md = md_output.read_text(encoding="utf-8")
     else:
         # 入力ファイル読み込み
-        user_info = read_file(BASE_DIR / "user" / f"{args.user}.md")
+        user_info = read_file(BASE_DIR / "user" / args.user / "profile.md")
         company_info = read_file(BASE_DIR / "company" / f"{args.company}.md")
-        job_role_info = read_file(BASE_DIR / "job_role" / f"{args.job_role}.md")
         template = read_file(doc_info["template_dir"] / doc_info["template"])
 
         # AI で文書生成
-        prompt = build_prompt(user_info, company_info, job_role_info,
-                              template, doc_info["name"])
+        prompt = build_prompt(user_info, company_info, template, doc_info["name"])
         generated_md = generate_with_ai(prompt)
 
         # Markdown 保存

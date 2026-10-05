@@ -10,12 +10,16 @@ help:
 	@echo "  make pdf MD=file.md   - 任意の .md ファイルから PDF を生成"
 	@echo ""
 	@echo "=== AI 自動生成 ==="
-	@echo "  make resume    USER=AJ COMPANY=Google ROLE=SWE    - 履歴書を生成"
-	@echo "  make skillsheet USER=AJ COMPANY=Google ROLE=SWE  - スキルシートを生成"
-	@echo "  make entry     USER=AJ COMPANY=Google ROLE=SWE   - エントリーシートを生成"
+	@echo "  make resume     USER=\"Jun Akita\" COMPANY=Google   - 履歴書を生成"
+	@echo "  make skillsheet USER=\"Jun Akita\" COMPANY=Google   - スキルシートを生成"
+	@echo "  make entry      USER=\"Jun Akita\" COMPANY=Google   - エントリーシートを生成"
 	@echo ""
 	@echo "=== オプション ==="
-	@echo "  make edit USER=AJ COMPANY=Google ROLE=SWE TYPE=resume  - 既存MDを再編集"
+	@echo "  make edit USER=\"Jun Akita\" COMPANY=Google TYPE=resume  - 既存MDを再編集"
+	@echo ""
+	@echo "=== 直接編集 ==="
+	@echo "  make preview MD=file.md            - 任意のMDをプレビュー・編集"
+	@echo "  make preview MD=file.md PDF=out.pdf - PDF出力先を指定"
 	@echo ""
 
 # --- 手動 PDF 生成（既存機能） ---
@@ -34,21 +38,23 @@ pdf-latex:
 
 # --- AI 自動生成 ---
 PYTHON  = .venv/bin/python3
-USER    ?= AJ
+USER    ?= Jun Akita
 COMPANY ?= Google
-ROLE    ?= SWE
 
 resume:
-	$(PYTHON) generate.py $(USER) $(COMPANY) $(ROLE) --type resume
+	$(PYTHON) generate.py "$(USER)" "$(COMPANY)" --type resume
 
 skillsheet:
-	$(PYTHON) generate.py $(USER) $(COMPANY) $(ROLE) --type skillsheet
+	$(PYTHON) generate.py "$(USER)" "$(COMPANY)" --type skillsheet
 
 entry:
-	$(PYTHON) generate.py $(USER) $(COMPANY) $(ROLE) --type entry
+	$(PYTHON) generate.py "$(USER)" "$(COMPANY)" --type entry
 
 edit:
-	$(PYTHON) generate.py $(USER) $(COMPANY) $(ROLE) --type $(TYPE) --no-ai
+	$(PYTHON) generate.py "$(USER)" "$(COMPANY)" --type $(TYPE) --no-ai
+
+preview:
+	$(PYTHON) generate.py --file $(MD) $(if $(PDF),--pdf $(PDF),)
 
 clean:
 	rm -f $(HTML)
