@@ -1,11 +1,28 @@
-.env
+# .gitignore — 3 節構成 (再現可能 / 秘密情報 / 端末固有) + 4 (この repo には載せない)。
+# ここに書いたものは端末間で同期されない。
+# 大きいファイルは除外しない。data/ に置き、必要になった時点で `git lfs track "data/**"` で追跡する。
+
+# ---- 1. 再現可能: コマンドで作り直せるもの。再現手順は README に書く ----
 .venv/
-.DS_Store
+__pycache__/
+# 生成物
 output/
 *.tmp.html
 .resume-pandoc.html
-__pycache__/
 
-# 個人情報（README以外のmdファイル）
+# ---- 2. 秘密情報: git に入れない。値は 1Password に置き、参照だけ .env.tpl に書く ----
+.env
+.env.*
+!.env.tpl
+!.env.example
+!.env.*.example
+
+# ---- 3. 端末固有: OS・エディタが作る付随ファイル ----
+.DS_Store
+
+# ---- 4. この repo には載せない: 別に正本があるか、公開しないもの ----
+#      ここにあるものはこの端末にしか無い。端末を替えると引き継げない。
+#      引き継ぎたいなら私的な別 repo に移すこと。
+# 個人情報(README以外のmdファイル)
 user/**/*.md
 company/**/*.md

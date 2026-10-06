@@ -10,8 +10,9 @@ Claude API による自動整形 + ブラウザプレビュー + PDF生成。
 brew install pandoc
 pip install weasyprint anthropic
 
-# API キー設定
-export ANTHROPIC_API_KEY='your-api-key'
+# API キー設定 (鍵は 1Password の op://dev/mdToPdf/ANTHROPIC_API_KEY。参照だけ書いた .env.tpl から .env を作る)
+op inject -i .env.tpl -o .env
+# op を使わない場合は手で書く:  export ANTHROPIC_API_KEY='your-api-key'
 ```
 
 ## 使い方
