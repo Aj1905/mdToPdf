@@ -49,7 +49,7 @@ make edit USER=AJ COMPANY=Google ROLE=SWE TYPE=resume
 ## ファイル構成
 
 ```
-user/        - ユーザー情報（個人ごとにフォルダを作成）
+_1password/user/     - ユーザー情報（個人ごとにフォルダを作成）。個人情報なので git に入れず、正本は 1Password (push/pull で自動同期)
   Jun Akita/
     Jun Akita.md   - 基本情報・自己紹介・人生遍歴
     education.md   - 学歴・学業成果
@@ -57,7 +57,7 @@ user/        - ユーザー情報（個人ごとにフォルダを作成）
     projects.md    - 個人/チームプロジェクト
     skills.md      - 技術スキル・資格・語学
     activities.md  - 課外活動・ボランティア・リーダー経験
-company/     - 企業情報（企業ごとにフォルダを作成）
+_1password/company/  - 企業情報（企業ごとにフォルダを作成）。同上
   Google/
     Google.md    - 会社概要（企業文化・採用方針など）
     Intern.md    - インターン職の役割・要件

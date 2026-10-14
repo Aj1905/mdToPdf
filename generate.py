@@ -367,8 +367,8 @@ def main():
     parser = argparse.ArgumentParser(
         description="mdToPdf - AI文書生成ツール（履歴書・スキルシート・エントリーシート）",
     )
-    parser.add_argument("user", nargs="?", help="ユーザー名（user/ 内のフォルダ名）")
-    parser.add_argument("company", nargs="?", help="企業名（company/ 内のファイル名、拡張子不要）")
+    parser.add_argument("user", nargs="?", help="ユーザー名（_1password/user/ 内のフォルダ名）")
+    parser.add_argument("company", nargs="?", help="企業名（_1password/company/ 内のファイル名、拡張子不要）")
     parser.add_argument(
         "--file", "-f", metavar="MD_FILE",
         help="既存のMarkdownファイルを直接プレビュー・編集（user/company/job_role 不要）",
@@ -429,8 +429,8 @@ def main():
         generated_md = md_output.read_text(encoding="utf-8")
     else:
         # 入力ファイル読み込み
-        user_info = read_file(BASE_DIR / "user" / args.user / "profile.md")
-        company_info = read_file(BASE_DIR / "company" / f"{args.company}.md")
+        user_info = read_file(BASE_DIR / "_1password" / "user" / args.user / "profile.md")
+        company_info = read_file(BASE_DIR / "_1password" / "company" / f"{args.company}.md")
         template = read_file(doc_info["template_dir"] / doc_info["template"])
 
         # AI で文書生成
